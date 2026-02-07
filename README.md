@@ -1,10 +1,26 @@
-# GoViral
+# GoViral 🚀
 
-## Backend
+---
 
-# 1. Go to server folder ($ cd server) then:
-# 2. Create virtual env: $ python -m venv venv
-# keep this structure:
+## 📦 Backend Setup Guide
+---
+
+## 1️⃣ Navigate to Backend Folder
+
+```bash
+cd server
+```
+
+---
+
+## 2️⃣ Create a Virtual Environment
+
+```bash
+python -m venv venv
+```
+
+### Initial Folder Structure
+```
 server/
 ├── config/
 │   ├── __init__.py
@@ -14,27 +30,72 @@ server/
 │   └── wsgi.py
 ├── manage.py
 ├── venv/
+```
 
-# 3. Activate virtual env: 
-    windows: $ source venv/Scripts/activate  OR ./venv/Scripts/activate
-    Linux/Mac: $ source venv/bin/activate
+---
 
-# 4. Now, create the Django project: $ python -m django startproject BE_PROJECT_NAME .        (Preferred Name: config)
-# 5. Install minimum required packages:
-    $ pip install django djangorestframework python-dotenv
-    $ pip install djangorestframework-simplejwt
+## 3️⃣ Activate Virtual Environment
 
-# 6. Set up .env from .env.example
-# 7. Then, create Django Apps. Create apps by responsibility, not features:
-    $ python manage.py startapp users
-    $ python manage.py startapp authn
+**Windows**
+```bash
+source venv/Scripts/activate
+# OR
+./venv/Scripts/activate
+```
 
-    App	        Responsibility
-    users	    User model, roles, profiles
-    authn	    OTP, login, verification
+**Linux / Mac**
+```bash
+source venv/bin/activate
+```
 
-# 8. Updated (Recommended) Folder Structure:
+---
 
+## 4️⃣ Create Django Project
+
+```bash
+python -m django startproject config .
+```
+
+> **Preferred project name:** `config`
+
+---
+
+## 5️⃣ Install Required Packages
+
+```bash
+pip install django djangorestframework python-dotenv
+pip install djangorestframework-simplejwt
+```
+
+---
+
+## 6️⃣ Environment Variables
+
+Create `.env` file using `.env.example` as reference.
+
+⚠️ **Never commit `.env` to git**
+
+---
+
+## 7️⃣ Create Django Apps (By Responsibility)
+
+```bash
+python manage.py startapp users
+python manage.py startapp authn
+```
+
+### Responsibility-Based Design
+
+| App Name | Responsibility |
+|--------|---------------|
+| users  | User model, roles, profiles |
+| authn  | OTP, login, verification |
+
+---
+
+## 8️⃣ Recommended Folder Structure
+
+```
 server/
 ├── config/
 │   ├── __init__.py
@@ -53,126 +114,136 @@ server/
 │   └── admin.py
 ├── authn/
 │   ├── models.py        # OTP model
-│   ├── services.py      # OTP logic
+│   ├── services.py      # OTP business logic
 │   ├── views.py
 │   └── utils.py
 ├── manage.py
 ├── venv/
+```
 
+---
 
-# 9. USER & ROLE MODEL (DESIGN IDEA)
-    Keeps User clean
-    Allows different fields
-    Scales well
+## 9️⃣ User & Role Model (Design Concept)
 
-# Core User
-    Email (unique, login field)
-    Role (COMPANY, INFLUENCER, ADMIN)
-    Status (PENDING, ACTIVE, BLOCKED)
-    Email verified (bool)
+### Why This Design?
+- Keeps core User clean
+- Supports multiple roles cleanly
+- Easy to scale
 
-# Profiles (One-to-One)
-    CompanyProfile
-    InfluencerProfile
+### Core User Fields
+- **Email** (unique, login field)
+- **Role** → `COMPANY | INFLUENCER | ADMIN`
+- **Status** → `PENDING | ACTIVE | BLOCKED`
+- **Email Verified** → `True / False`
 
+### One-to-One Profiles
+- `CompanyProfile`
+- `InfluencerProfile`
 
-# 10. AUTHENTICATION FLOW (Email + OTP)
+---
 
-# Flow:
-    a. User enters email
-    b. OTP generated & stored (short expiry)
-    c. OTP emailed (Google App Password)
-    d. User submits OTP
-    e. If valid:
-        User created (or fetched)
-        JWT issued
-    f. If first login:
-        Force role selection
-        Force profile completion
+## 🔐 10️⃣ Authentication Flow (Email + OTP)
 
+### Flow Overview
+1. User enters email
+2. OTP generated & stored (short expiry)
+3. OTP sent via email (Google App Password)
+4. User submits OTP
+5. If OTP is valid:
+   - User created or fetched
+   - JWT issued
+6. First-time users:
+   - Must select role
+   - Must complete profile
 
-# OTP Model (Concept)
-# Fields:
-    email
-    otp
-    expires_at
-    attempts
-    is_used
+---
 
-# Rules:
-    Expire after 5 mins
-    Max retry limit
-    One active OTP per email
+### OTP Model (Concept)
 
-This prevents abuse.
+**Fields**
+- email
+- otp
+- expires_at
+- attempts
+- is_used
 
+**Rules**
+- Expires in **5 minutes**
+- Max retry limit
+- One active OTP per email
 
-# 11. Role Selection & Profile Completion
-# First login logic (important)
-User state:
-    role = NULL
-    profile_completed = False
+✅ Prevents abuse & brute-force attempts
 
-Backend must:
-    Block access to all APIs
-    Except:
-        /select-role
-        /complete-profile
+---
 
-Once done:
-    Update role
-    Create respective profile
-    Set status:
-        Company → ACTIVE
-        Influencer → PENDING (admin approval)
+## 🧩 11️⃣ Role Selection & Profile Completion
 
+### First Login State
+```
+role = NULL
+profile_completed = False
+```
 
-# 12. Authorization & Permissions
+### Backend Enforcement
+❌ Block all APIs  
+✅ Allow only:
+- `/select-role`
+- `/complete-profile`
 
-Create custom permission classes:
+### After Completion
+- Assign role
+- Create respective profile
+- Update status:
+  - **Company** → `ACTIVE`
+  - **Influencer** → `PENDING` (admin approval)
 
-Examples:
-    IsAuthenticatedAndActive
-    IsCompany
-    IsInfluencer
-    IsAdmin
+---
 
-These are used in DRF views.
-This is where your ownership table gets enforced.
+## 🛡️ 12️⃣ Authorization & Permissions
 
+Create **custom DRF permission classes**:
 
-# 13. Test Using Postman
+- `IsAuthenticatedAndActive`
+- `IsCompany`
+- `IsInfluencer`
+- `IsAdmin`
 
-Before any frontend:
-    Test OTP flow
-    Test role selection
-    Test blocked users
-    Test influencer pending approval
-    Test admin approval
+🔐 All access control & ownership rules live here.
 
-If Postman works → frontend will be easy.
+---
 
+## 🧪 13️⃣ Test Using Postman (Mandatory)
 
-# Important Rules (Don’t Break These)
+Before frontend integration:
+- Test OTP flow
+- Test role selection
+- Test blocked users
+- Test influencer approval
+- Test admin actions
 
-❌ Don’t mix OTP logic inside views
+✔️ If Postman works → frontend will be smooth.
 
-❌ Don’t put business rules in serializers
+---
 
-❌ Don’t let users access APIs before profile completion
+## 🚫 Important Rules (Do Not Break)
 
-❌ Don’t hardcode email credentials
+❌ Don’t put OTP logic in views  
+❌ Don’t place business rules in serializers  
+❌ Don’t allow API access before profile completion  
+❌ Don’t hardcode email credentials  
 
-✅ Always validate user status in permissions
+✅ Always validate user **status & role** in permissions
 
+---
 
+## 🔜 Next Steps
 
+Once auth & profile flow is stable:
+- Campaign module
+- Bidding system
+- Admin controls
+- Global state enforcement
 
-# NEXT STEP (After This)
+---
 
-Once auth & profile flow is stable, next phases:
-    Campaign app
-    Bid app
-    Admin controls
-    State enforcement
-
+### ✨ Built for scale. Designed for clarity.
