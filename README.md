@@ -209,6 +209,8 @@ Create **custom DRF permission classes**:
 - `IsAdmin`
 
 🔐 All access control & ownership rules live here.
+These are used in DRF views.
+This is where your ownership table gets enforced.
 
 ---
 
@@ -227,10 +229,10 @@ Before frontend integration:
 
 ## 🚫 Important Rules (Do Not Break)
 
-❌ Don’t put OTP logic in views  
-❌ Don’t place business rules in serializers  
-❌ Don’t allow API access before profile completion  
-❌ Don’t hardcode email credentials  
+❌ Don’t mix OTP logic inside views
+❌ Don’t put business rules in serializers
+❌ Don’t let users access APIs before profile completion
+❌ Don’t hardcode email credentials
 
 ✅ Always validate user **status & role** in permissions
 
@@ -239,10 +241,10 @@ Before frontend integration:
 ## 🔜 Next Steps
 
 Once auth & profile flow is stable:
-- Campaign module
-- Bidding system
+- Campaign app
+- Bid app
 - Admin controls
-- Global state enforcement
+- State enforcement
 
 ---
 
