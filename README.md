@@ -229,10 +229,10 @@ Before frontend integration:
 
 ## 🚫 Important Rules (Do Not Break)
 
-❌ Don’t mix OTP logic inside views
-❌ Don’t put business rules in serializers
-❌ Don’t let users access APIs before profile completion
-❌ Don’t hardcode email credentials
+❌ Don’t mix OTP logic inside views  
+❌ Don’t put business rules in serializers  
+❌ Don’t let users access APIs before profile completion  
+❌ Don’t hardcode email credentials  
 
 ✅ Always validate user **status & role** in permissions
 
