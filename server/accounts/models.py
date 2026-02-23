@@ -38,7 +38,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 class CompanyProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     company_name = models.CharField(max_length=255)
-    website = models.URLField(blank=True, null=False)
+    website = models.URLField(null=False, default=None)
 
     insta_link = models.CharField(max_length=255, null=True)
     fb_link = models.CharField(max_length=255, null=True)
