@@ -1,11 +1,12 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.generics import CreateAPIView, ListAPIView, UpdateAPIView
 from accounts.permissions import IsCompany, IsOnboardingComplete, IsCreator
 from django.utils import timezone
 from rest_framework import status
-from .models import Campaign
-from .serializers import CampaignSerializer
+from .models import Campaign, CampaignSubmission
+from .serializers import CampaignSerializer, CampaignSubmissionCreateSerializer, CreatorSubmissionStatusSerializer, CompanySubmissionReviewSerializer
 
 
 # Company ONLY
@@ -92,3 +93,37 @@ class LiveCampaignsView(APIView):
         return Response(serializer.data)
 
 
+# Creator submits content to campaign
+class CreatorCampaignSubmissionCreateView(CreateAPIView):
+    permission_classes = [IsAuthenticated, IsOnboardingComplete, IsCreator]
+
+    serializer_class = CampaignSubmissionCreateSerializer
+
+    def get_queryset(self):
+        return CampaignSubmission.objects.filter(
+            creator=self.request.user
+        )
+    
+
+# Creator sees their submission + status
+class CreatorMySubmissionsView(ListAPIView):
+    permission_classes = [IsAuthenticated, IsOnboardingComplete, IsCreator]
+    serializer_class = CreatorSubmissionStatusSerializer
+
+    def get_queryset(self):
+        return CampaignSubmission.objects.filter(
+            creator=self.request.user
+        ).select_related("campaign", "campaign__company")
+    
+
+# Company reviews creator submission 
+class CompanySubmissionReviewView(UpdateAPIView):
+    permission_classes = [IsAuthenticated, IsOnboardingComplete, IsCompany]
+    serializer_class = CompanySubmissionReviewSerializer
+    queryset = CampaignSubmission.objects.all()
+
+    def perform_update(self, serializer):
+        submission = self.get_object()
+        if submission.campaign.company != self.request.user:
+            raise PermissionError("You are not allowed to review this submission.")
+        serializer.save()

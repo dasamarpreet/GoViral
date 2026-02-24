@@ -4,6 +4,9 @@ from .views import (
     MyCampaignsView,
     LiveCampaignsView,
     UpdateCampaignStatusView,
+    CreatorCampaignSubmissionCreateView,
+    CreatorMySubmissionsView,
+    CompanySubmissionReviewView
 )
 
 urlpatterns = [
@@ -11,4 +14,7 @@ urlpatterns = [
     path("my/", MyCampaignsView.as_view()),
     path("live/", LiveCampaignsView.as_view()),
     path("<int:pk>/status/", UpdateCampaignStatusView.as_view()),
+    path("submit/", CreatorCampaignSubmissionCreateView.as_view()),
+    path("my-submissions/", CreatorMySubmissionsView.as_view()),
+    path("submissions/<int:pk>/review/", CompanySubmissionReviewView.as_view())
 ]

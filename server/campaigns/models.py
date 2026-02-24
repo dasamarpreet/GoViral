@@ -64,3 +64,43 @@ class Campaign(models.Model):
     def __str__(self):
         return self.title
 
+
+# Creator Only
+class CampaignSubmission(models.Model):
+
+    class Status(models.TextChoices):
+        SUBMITTED = "SUBMITTED"
+        APPROVED = "APPROVED"
+        REJECTED = "REJECTED"
+        NEED_IMPROVEMENT = "NEED_IMPROVEMENT"
+
+    campaign = models.ForeignKey(
+        Campaign,
+        on_delete=models.CASCADE,
+        related_name="submissions"
+    )
+
+    creator = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="campaign_submissions"
+    )
+
+    content_url = models.URLField()
+
+    status = models.CharField(
+        max_length=20,
+        choices=Status.choices,
+        default=Status.SUBMITTED
+    )
+
+    feedback = models.TextField(blank=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ("campaign", "creator")
+
+    def __str__(self):
+        return f"{self.creator} - {self.campaign}"
